@@ -19,7 +19,7 @@
 // THE SOFTWARE.
 
 UIAutoMonkey = {
-  
+
   config: {
     numberOfEvents: 1000,
     delayBetweenEvents: 0.05,    // In seconds
@@ -46,7 +46,7 @@ UIAutoMonkey = {
       longPress: 0.05
     }
   },
-  
+
   // --- --- --- ---
   // Event Methods
   //
@@ -127,7 +127,7 @@ UIAutoMonkey = {
       this.delay();
     }
   },
-  
+
   triggerRandomEvent: function() {
     var name = this.chooseEventName();
     // Find the event method based on the name of the event
@@ -146,7 +146,7 @@ UIAutoMonkey = {
     seconds = seconds || this.config.delayBetweenEvents;
     this.target().delay(seconds);
   },
-  
+
   chooseEventName: function() {
     // Randomly chooses an event name from the `eventsWeight` dictionary
     // based on the given weights.
@@ -193,7 +193,7 @@ UIAutoMonkey = {
     }
     else return 1;
   },
-  
+
   randomTouchCount: function() {
     // Calculates a touch count for tap events based on touch probabilities
     if (this.config.touchProbability.multipleTouches > Math.random()) {
