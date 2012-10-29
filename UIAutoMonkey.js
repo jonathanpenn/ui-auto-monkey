@@ -176,14 +176,16 @@ UIAutoMonkey = {
 
   randomX: function() {
     // Returns a random X coordinate within the screen rectangle
+    // Need to adjust by one to stay within rectangle
     var range = this.target().rect().size.width - 1;
-    return Math.floor(Math.random() * 10000) % range + 1;
+    return Math.floor(Math.random() * 10000) % range;
   },
 
   randomY: function() {
     // Returns a random Y coordinate within the screen rectangle
+    // Need to adjust by one to stay within rectangle
     var range = this.target().rect().size.height - 1;
-    return Math.floor(Math.random() * 10000) % range + 1;
+    return Math.floor(Math.random() * 10000) % range;
   },
 
   randomTapCount: function() {
