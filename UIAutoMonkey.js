@@ -30,7 +30,7 @@ UIAutoMonkey = {
     // If you want to add your own "events", check out the event method
     // definitions below.
     eventWeights: {
-      tap: 50,
+      tap: 500,
       drag: 1,
       flick: 1,
       orientation: 1,
@@ -174,18 +174,24 @@ UIAutoMonkey = {
     throw "No even was chosen!";
   },
 
+  screenWidth: function() {
+    // Need to adjust by one to stay within rectangle
+    return this.target().rect().size.width - 1;
+  },
+
+  screenHeight: function() {
+    // Need to adjust by one to stay within rectangle
+    return this.target().rect().size.height - 1;
+  },
+
   randomX: function() {
     // Returns a random X coordinate within the screen rectangle
-    // Need to adjust by one to stay within rectangle
-    var range = this.target().rect().size.width - 1;
-    return Math.floor(Math.random() * 10000) % range;
+    return Math.floor(Math.random() * 10000) % this.screenWidth();
   },
 
   randomY: function() {
     // Returns a random Y coordinate within the screen rectangle
-    // Need to adjust by one to stay within rectangle
-    var range = this.target().rect().size.height - 1;
-    return Math.floor(Math.random() * 10000) % range;
+    return Math.floor(Math.random() * 10000) % this.screenHeight();
   },
 
   randomTapCount: function() {
