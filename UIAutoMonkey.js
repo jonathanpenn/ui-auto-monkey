@@ -46,13 +46,12 @@ UIAutoMonkey = {
 			longPress: 0.05
 		}
 
-		// Restrict events to rectangluar area of screen
+		// Uncomment the following to restrict events to a rectangluar area of
+		// the screen
 		/*
-		boundArea: {
-			x1: 870,
-			y1: 0,
-			x2: 1000,
-			y2: 750
+		frame: {
+			origin: {x: 0, y: 0},
+			size: {width: 100, height: 50}
 		}
 		*/
 	},
@@ -195,31 +194,35 @@ UIAutoMonkey = {
 	},
 
 	randomX: function() {
-		// Returns a random X coordinate within the screen rectangle
-		var val = Math.floor(Math.random() * 10000) % this.screenWidth();
+		var min, max;
 
-		// Use bound area values only if x-coordinate is available
-		if (this.config.boundArea !== undefined && this.config.boundArea.x2 > 0){
-			var max = this.config.boundArea.x2;
-			var min = this.config.boundArea.x1;
-			val = Math.floor(Math.random() * (max - min + 1) + min);
+		if (this.config.frame){
+			// Limits coordinates to given frame if set in config
+			min = this.config.frame.origin.x;
+			max = this.config.frame.size.width + min;
+		} else {
+			// Returns a random X coordinate within the screen rectangle
+			min = 0;
+			max = this.screenWidth();
 		}
 
-		return val;
+		return Math.floor(Math.random() * (max - min + 1) + min);
 	},
 
 	randomY: function() {
-		// Returns a random Y coordinate within the screen rectangle
-		var val = Math.floor(Math.random() * 10000) % this.screenHeight();
+		var min, max;
 
-		// Use bound area values only if y-coordinate is available
-		if (this.config.boundArea !== undefined && this.config.boundArea.y2 > 0){
-			var max = this.config.boundArea.y2;
-			var min = this.config.boundArea.y1;
-			val = Math.floor(Math.random() * (max - min + 1) + min);
+		if (this.config.frame){
+			// Limits coordinates to given frame if set in config
+			min = this.config.frame.origin.y;
+			max = this.config.frame.size.height + min;
+		} else {
+			// Returns a random Y coordinate within the screen rectangle
+			min = 0;
+			max = this.screenHeight();
 		}
 
-		return val;
+		return Math.floor(Math.random() * (max - min + 1) + min);
 	},
 
 	randomTapCount: function() {
