@@ -45,6 +45,16 @@ UIAutoMonkey = {
 			multipleTouches: 0.05,
 			longPress: 0.05
 		}
+
+		// Restrict events to rectangluar area of screen
+		/*
+		boundArea: {
+			x1: 870,
+			y1: 0,
+			x2: 1000,
+			y2: 750
+		}
+		*/
 	},
 
 	// --- --- --- ---
@@ -186,12 +196,30 @@ UIAutoMonkey = {
 
 	randomX: function() {
 		// Returns a random X coordinate within the screen rectangle
-		return Math.floor(Math.random() * 10000) % this.screenWidth();
+		var val = Math.floor(Math.random() * 10000) % this.screenWidth();
+
+		// Use bound area values only if x-coordinate is available
+		if (this.config.boundArea !== undefined && this.config.boundArea.x2 > 0){
+			var max = this.config.boundArea.x2;
+			var min = this.config.boundArea.x1;
+			val = Math.floor(Math.random() * (max - min + 1) + min);
+		}
+
+		return val;
 	},
 
 	randomY: function() {
 		// Returns a random Y coordinate within the screen rectangle
-		return Math.floor(Math.random() * 10000) % this.screenHeight();
+		var val = Math.floor(Math.random() * 10000) % this.screenHeight();
+
+		// Use bound area values only if y-coordinate is available
+		if (this.config.boundArea !== undefined && this.config.boundArea.y2 > 0){
+			var max = this.config.boundArea.y2;
+			var min = this.config.boundArea.y1;
+			val = Math.floor(Math.random() * (max - min + 1) + min);
+		}
+
+		return val;
 	},
 
 	randomTapCount: function() {
