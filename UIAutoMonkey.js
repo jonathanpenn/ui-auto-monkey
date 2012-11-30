@@ -207,7 +207,7 @@ UIAutoMonkey = {
 			max = this.screenWidth();
 		}
 
-		return Math.floor(Math.random() * (max - min + 1) + min);
+		return Math.floor(Math.random() * (max - min) + min) + 1;
 	},
 
 	randomY: function() {
@@ -223,7 +223,7 @@ UIAutoMonkey = {
 			max = this.screenHeight();
 		}
 
-		return Math.floor(Math.random() * (max - min + 1) + min);
+		return Math.floor(Math.random() * (max - min) + min) + 1;
 	},
 
 	randomTapCount: function() {
