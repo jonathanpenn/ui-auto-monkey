@@ -36,7 +36,8 @@ UIAutoMonkey = {
 			orientation: 1,
 			clickVolumeUp: 1,
 			clickVolumeDown: 1,
-			lock: 1
+			lock: 1,
+			shake: 1
 		},
 
 		// Probability that touch events will have these different properties
@@ -122,6 +123,9 @@ UIAutoMonkey = {
 		this.target().lockForDuration(Math.random() * 3);
 	},
 
+	shakeEvent: function() {
+		this.target().shake();
+	},
 
 	// --- --- --- ---
 	// Helper methods
