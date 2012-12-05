@@ -36,7 +36,10 @@ UIAutoMonkey = {
 			orientation: 1,
 			clickVolumeUp: 1,
 			clickVolumeDown: 1,
-			lock: 1
+			lock: 1,
+			pinchClose: 10,
+			pinchOpen: 10,
+			shake: 1
 		},
 
 		// Probability that touch events will have these different properties
@@ -122,6 +125,25 @@ UIAutoMonkey = {
 		this.target().lockForDuration(Math.random() * 3);
 	},
 
+	pinchCloseEvent: function () {
+		this.target().pinchCloseFromToForDuration(
+			{ x: this.randomX(), y: this.randomY() },
+			{ x: this.randomX(), y: this.randomY() },
+			0.5
+		);
+	},
+
+	pinchOpenEvent: function () {
+		this.target().pinchOpenFromToForDuration(
+			{ x: this.randomX(), y: this.randomY() },
+			{ x: this.randomX(), y: this.randomY() },
+			0.5
+		);
+	},
+
+	shakeEvent: function() {
+		this.target().shake();
+	},
 
 	// --- --- --- ---
 	// Helper methods
