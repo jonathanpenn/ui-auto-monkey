@@ -18,7 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-UIAutoMonkey = {
+"use strict";
+
+var UIAutoMonkey = {
 
 	config: {
 		numberOfEvents: 1000,
@@ -185,7 +187,7 @@ UIAutoMonkey = {
 		var calculatedEventWeights = [];
 		var totalWeight = 0;
 		var events = this.config.eventWeights;
-		for (event in events) {
+		for (var event in events) {
 			if (events.hasOwnProperty(event)) {
 				calculatedEventWeights.push({
 					weight: events[event]+totalWeight,
