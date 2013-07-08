@@ -26,6 +26,10 @@ var UIAutoMonkey = {
 		numberOfEvents: 1000,
 		delayBetweenEvents: 0.05,    // In seconds
 
+		// If the following line is uncommented, then screenshots are taken
+		// every "n" seconds.
+		//screenshotInterval: 5,
+
 		// Events are triggered based on the relative weights here. The event
 		// with this highest number gets triggered the most.
 		//
@@ -158,6 +162,7 @@ var UIAutoMonkey = {
 
 		for(var i = 0; i < this.config.numberOfEvents; i++) {
 			this.triggerRandomEvent();
+			if (this.config.screenshotInterval) this.takeScreenShotIfItIsTime();
 			this.delay();
 		}
 	},
@@ -278,6 +283,17 @@ var UIAutoMonkey = {
 	randomRadians: function() {
 		// Returns a random radian value
 		return Math.random() * 10 % (3.14159 * 2);
+	},
+
+	takeScreenShotIfItIsTime: function() {
+		var now = (new Date()).valueOf();
+		if (!this._lastScreenshotTime) this._lastScreenshotTime = 0;
+
+		if (now - this._lastScreenshotTime > this.config.screenshotInterval * 1000) {
+			var filename = "monkey-" + (new Date()).toISOString().replace(/[:\.]+/g, "-");
+			this.target().captureScreenWithName(filename);
+			this._lastScreenshotTime = now;
+		}
 	}
 };
 
