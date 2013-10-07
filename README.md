@@ -50,10 +50,10 @@ At the top of the script, you'll see a JavaScript dictionary of configuration se
         orientation: 1,
         clickVolumeUp: 1,
         clickVolumeDown: 1,
-		lock: 1,
-		pinchClose: 10,
-		pinchOpen: 10,
-		shake: 1
+        lock: 1,
+        pinchClose: 10,
+        pinchOpen: 10,
+        shake: 1
       },
 
       // Probability that touch events will have these different properties
