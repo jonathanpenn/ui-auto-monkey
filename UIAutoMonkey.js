@@ -308,26 +308,3 @@ UIAutoMonkey.RELEASE_THE_MONKEY = function() {
 
 // UIAutoMonkey.RELEASE_THE_MONKEY();
 
-
-
-
-// --- --- --- ---
-
-// Usage & Customization example
-// Save this UIAutoMonkey.js somewhere in your disk to import it and configure it in each of your Instruments instances
-/*
-#import "UIAutoMonkey.js"
-
-// Configure the monkey: use the default configuration but a bit tweaked
-monkey = new UIAutoMonkey()
-monkey.config.numberOfEvents = 1000;
-monkey.config.screenshotInterval = 5;
-// Of course, you can also override the default config completely with your own, using `monkey.config = { … }` instead
-
-// Configure some custom events if needed
-monkey.config.eventWeights.customEvent1 = 300;
-monkey.allEvents.customEvent1 = function() { … }
-
-// Release the monkey!
-monkey.RELEASE_THE_MONKEY();
-*/
