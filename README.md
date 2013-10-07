@@ -78,7 +78,7 @@ You can import the monkey in an existing set of UI Automation script files and a
 
     // Usage & Customization example
     // Save this UIAutoMonkey.js somewhere in your disk to import it and configure it in each of your Instruments instances
-    #import "UIAutoMonkey.js"
+    #import "/path/to/UIAutoMonkey.js"
 
     // Configure the monkey: use the default configuration but a bit tweaked
     monkey = new UIAutoMonkey()
