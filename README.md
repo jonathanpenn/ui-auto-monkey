@@ -72,9 +72,38 @@ At the top of the script, you'll see a JavaScript dictionary of configuration se
 
 `touchProbability` controls the different kinds of `tap` events. By default, a tap is just a single tap. Adjust these settings to set how often a double tap or long press occurs. Each of these values must be between 0 and 1.
 
-You can also add your own events if you need to chain some smaller events together for better effect. Simply add a new event name as a key and weight as the value to the `eventWeights` dictionary. Then, you need to add a corresonding method on the `UIAutoMonkey` object that has the name of your event followed by "Event". So "tap" needs a corresponding "tapEvent" method.
+## Custom Use
+
+You can import the monkey in an existing set of UI Automation script files and add custom events to trigger like so:
+
+    // Usage & Customization example
+    // Save this UIAutoMonkey.js somewhere in your disk to import it and configure it in each of your Instruments instances
+    #import "UIAutoMonkey.js"
+
+    // Configure the monkey: use the default configuration but a bit tweaked
+    monkey = new UIAutoMonkey()
+    monkey.config.numberOfEvents = 1000;
+    monkey.config.screenshotInterval = 5;
+    // Of course, you can also override the default config completely with your own, using `monkey.config = { … }` instead
+
+    // Configure some custom events if needed
+    monkey.config.eventWeights.customEvent1 = 300;
+    monkey.allEvents.customEvent1 = function() { … }
+
+    // Release the monkey!
+    monkey.RELEASE_THE_MONKEY();
+
+Make sure you comment out the last line of `UIAutoMonkey.js` if you include it in your project:
+
+    // UIAutoMonkey.RELEASE_THE_MONKEY();
+
+By default, this script will execute the monkey automatically. If you want to trigger it yourself after setting up the object, you'll need to comment out that last line so it doesn't go off on it's own before you are ready.
 
 Check out the built in events for more information and the helper methods available to you.
+
+(Special thanks to [Oliver Halligon][o] for the new customization features!)
+
+  [o]: https://github.com/AliSoftware
 
 ## For More Info
 
