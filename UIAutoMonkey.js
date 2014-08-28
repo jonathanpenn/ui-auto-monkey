@@ -20,6 +20,8 @@
 
 "use strict";
 
+#import "seedrandom.js"
+
 function UIAutoMonkey() {
 		
 	this.config = {
@@ -306,5 +308,5 @@ UIAutoMonkey.RELEASE_THE_MONKEY = function() {
 	(new UIAutoMonkey()).RELEASE_THE_MONKEY();
 };
 
-UIAutoMonkey.RELEASE_THE_MONKEY();
+//UIAutoMonkey.RELEASE_THE_MONKEY();
 
