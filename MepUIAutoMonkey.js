@@ -1,12 +1,5 @@
 "use strict";
 
-//Have main test import the following
-//
-//#import "seedrandom.js"
-//#import "ui-auto-monkey/UIAutoMonkey.js"
-//#import "ui-auto-monkey/MepUIAutoMonkey.js"
-//#import "tuneup_js/tuneup.js"
-//
 
 function MepUIAutoMonkey() {
   UIAutoMonkey.call(this); //invoke "super" constructor
@@ -35,12 +28,10 @@ MepUIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 	// Called at the bottom of this script to, you know...
 	//
 	// RELEASE THE MONKEY!
-	UIALogger.logDebug("XXX in RELEASE_THE_MONKEY 1 this.conditionHandlers.length=" + this.conditionHandlers.length);
 	var conditionCounts = []; // each entry corresponds to an entry in conditionHandlers
 	for (var index = 0; index < this.conditionHandlers.length; index++) {
 		conditionCounts[index] = 0;
 	}
-	UIALogger.logDebug("XXX in RELEASE_THE_MONKEY 2");
 	for (var i = 0; i < this.config.numberOfEvents; i++) {
 		this.triggerRandomEvent();
 		if (this.config.screenshotInterval) this.takeScreenShotIfItIsTime();
@@ -50,11 +41,14 @@ MepUIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 };
 
 MepUIAutoMonkey.prototype.processConditionHandlers = function(conditionHandlers, conditionCounts, eventNumber, target) {
+	var mainWindow = target.frontMostApp().mainWindow(); //optimization to let handlers do less work. Assumes isTrue() doesn't alter the mainWindow.
 	for (var i = 0; i < conditionHandlers.length; i++) {
 		var aCondition = conditionHandlers[i];
-	    UIALogger.logDebug("XXX in processConditionHandlers aCondition =" + aCondition.toString());
 		UIATarget.localTarget().pushTimeout(0);
-		var isConditionTrue = aCondition.isTrue(target, eventNumber);
+		//var startTime = new Date();
+		var isConditionTrue = aCondition.isTrue(target, eventNumber, mainWindow);
+		//var endTime = new Date();
+		//UIALogger.logMessage("time to execute condition" + aCondition + " = " + (endTime-startTime))
 		UIATarget.localTarget().popTimeout();
 		if (isConditionTrue) {
 			var newValue = conditionCounts[i] + 1;
@@ -64,6 +58,8 @@ MepUIAutoMonkey.prototype.processConditionHandlers = function(conditionHandlers,
 				conditionCounts[i] = newValue;
 				if (aCondition.isExclusive()) {
 					break;
+				} else {
+					mainWindow = target.frontMostApp().mainWindow(); //could be stale
 				}
 			}
 			conditionCounts[i] = newValue;
