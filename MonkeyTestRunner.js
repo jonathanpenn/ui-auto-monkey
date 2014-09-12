@@ -3,11 +3,12 @@
 /**
 Usage
 
-#import "seedrandom.js"
-#import "ui-auto-monkey/UIAutoMonkey.js"
-#import "ui-auto-monkey/MepUIAutoMonkey.js"
-#import "ui-auto-monkey/MonkeyTestRunner.js"
-#import "tuneup_js/tuneup.js"
+//PLEASE REMOVE THE SPACE AFTER "#"  I THE FOLLOWING LINES
+# import "../tuneup_js/tuneup.js"
+# import "ui-auto-monkey/seedrandom.js"
+# import "ui-auto-monkey/UIAutoMonkey.js"
+# import "ui-auto-monkey/MepUIAutoMonkey.js"
+# import "ui-auto-monkey/MonkeyTestRunner.js"
 
 //The following creates an optional handler. Many Monkey tests have UI holes "HOLES" the application wanders into in and from which they rarely escape. 
 //To mitigate that clients can create a handler for each HOLE. The following is one used by Finance
@@ -20,9 +21,8 @@ var fullScreenChartHandler = {
 		return mainWindow.buttons()["CloseFullScreenChart"].checkIsValid();
 	},
 
-	// Trigger our handler if we're true 3 times in a row
-	// We trigger at a low threshold because it's very likely we'll fall back into this condition again.
-	threshold: function() {
+	// every checkEvery() events our isTrue() method will be called
+	checkEvery: function() {
 		return 3;
 	},
 
