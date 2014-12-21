@@ -1,11 +1,12 @@
 "use strict";
+//Copyright Yahoo 2014
 
 
 function MepUIAutoMonkey() {
   UIAutoMonkey.call(this); //invoke "super" constructor
   this.setConditionHandlers([]);
 }
-//Copyright Yahoo 2014
+
 //setup inheritance (along with the "super" call in our constructor
 MepUIAutoMonkey.prototype = Object.create(UIAutoMonkey.prototype); //we inherit
 MepUIAutoMonkey.prototype.constructor = MepUIAutoMonkey; //manually set the constructor to ours
@@ -14,9 +15,9 @@ MepUIAutoMonkey.prototype.constructor = MepUIAutoMonkey; //manually set the cons
 /**
  * conditionHandlers are objects that respond to the following function calls:
  *  isTrue(target, eventNumber): returns True if the condition is true given target and event number eventNumber.
- *  checkEvery(): returns an integer number events that pass before we check.
- *  handle(target) handle the condition.
- *  isExclusive() if true then if this condition's handler is invoked then  processing subsequent conditions is skipped for this particular event. This
+ *  checkEvery(): How many events should pass before we check.
+ *  handle(target, mainWindow) handle the condition.
+ *  isExclusive() if true then if this condition's handler is invoked then processing subsequent conditions is skipped for this particular event. This
  *    is usually set to true as it allows the condition to exit a UI hole and at that point there may be no point executing other conditions
  * @param {ConditionHandler[]} handlers - an Array of ConditionHandlers
  */
@@ -43,7 +44,6 @@ MepUIAutoMonkey.prototype.processConditionHandlers = function(conditionHandlers,
 		if ((eventNumberPlus1 % aCondition.checkEvery()) != 0) {
 			continue; //not yet time to process aCondition.
 		}
-		//UIALogger.logMessage("now processing handler " + aCondition);
 		UIATarget.localTarget().pushTimeout(0);
 		//var startTime = new Date();
 		var isConditionTrue = aCondition.isTrue(target, eventNumberPlus1, mainWindow);
@@ -51,21 +51,13 @@ MepUIAutoMonkey.prototype.processConditionHandlers = function(conditionHandlers,
 		//UIALogger.logMessage("time to execute condition" + aCondition + " = " + (endTime-startTime))
 		UIATarget.localTarget().popTimeout();
 		if (isConditionTrue) {
-		    mainWindow = target.frontMostApp().mainWindow();
-		    if (!aCondition.isTrue(target, eventNumberPlus1, mainWindow)) { //ask again with normal timeouts
-			  //UIALogger.logMessage("Skipping condition as it's not true a 2nd time:" + aCondition);	
-			  continue;
-			}
-			//UIALogger.logMessage("handling condition " + aCondition);		
-		    aCondition.handle(target);
-			if (aCondition.isExclusive()) {
-			  break;
-			} else {
-			  mainWindow = target.frontMostApp().mainWindow(); //could be stale
-			}
-		} else {
-			//UIALogger.logMessage("Condition false: " + aCondition);
-		}
+				aCondition.handle(target, mainWindow);
+				if (aCondition.isExclusive()) {
+					break;
+				} else {
+					mainWindow = target.frontMostApp().mainWindow(); //could be stale
+				}
+		};
 	};
 
 };
