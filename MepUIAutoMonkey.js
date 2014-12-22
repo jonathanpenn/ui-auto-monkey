@@ -33,6 +33,9 @@ MepUIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 		this.triggerRandomEvent();
 		if (this.config.screenshotInterval) this.takeScreenShotIfItIsTime();
 		this.processConditionHandlers(this.conditionHandlers, i+1, this.target());
+		if ((i % 60) == 0 ) {
+			UIALogger.logDebug("MepUIAutoMonkey.RELEASE_THE_MONKEY processed event " + i);
+		}
 		this.delay();
 	}
 };
@@ -44,12 +47,17 @@ MepUIAutoMonkey.prototype.processConditionHandlers = function(conditionHandlers,
 		if ((eventNumberPlus1 % aCondition.checkEvery()) != 0) {
 			continue; //not yet time to process aCondition.
 		}
-		UIATarget.localTarget().pushTimeout(0);
-		//var startTime = new Date();
-		var isConditionTrue = aCondition.isTrue(target, eventNumberPlus1, mainWindow);
-		//var endTime = new Date();
-		//UIALogger.logMessage("time to execute condition" + aCondition + " = " + (endTime-startTime))
-		UIATarget.localTarget().popTimeout();
+		try {
+			UIATarget.localTarget().pushTimeout(0);
+			//var startTime = new Date();
+			var isConditionTrue = aCondition.isTrue(target, eventNumberPlus1, mainWindow);
+			//var endTime = new Date();
+			//UIALogger.logMessage("time to execute condition" + aCondition + " = " + (endTime-startTime))
+		}
+		finally {
+		    UIATarget.localTarget().popTimeout();
+		}
+
 		if (isConditionTrue) {
 				aCondition.handle(target, mainWindow);
 				if (aCondition.isExclusive()) {
