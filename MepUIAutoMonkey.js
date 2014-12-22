@@ -35,7 +35,7 @@ MepUIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 		this.processConditionHandlers(this.conditionHandlers, i+1, this.target());
 		if ((i % 60) == 0 ) {
 			UIALogger.logDebug("MepUIAutoMonkey.RELEASE_THE_MONKEY processed event " + i);
-		}
+		};
 		this.delay();
 	}
 };
