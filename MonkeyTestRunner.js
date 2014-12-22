@@ -120,3 +120,24 @@ function monkeyTest(numTests, monkeyFunction) {
 		}, options);
 	};
 }
+
+function monkeyTestForTimeInMinutes(minutesToRun, monkeyFunction) {
+	var startTime = new Date().getTime();
+	for (var i = 0; i < seeds.length; i++) {
+		test("TC " + i + " - seed " + seeds[i], function(target, application) {
+			Math.seedrandom(seeds[i]);
+			var monkey = new MepUIAutoMonkey()
+			monkeyFunction(monkey);
+		}, options);
+		var currTime = new Date().getTime();
+		var elapsedMS = currTime - startTime;
+		var elapsedSecs = elapsedMS/1000;
+		var elapsedMinutes = elapsedSecs / 60;
+		if (elapsedMinutes >= minutesToRun) {
+			UIALogger.logDebug("Ending monkey after " + elapsedMinutes + " minutes run time.");
+			break;
+		} else {
+			UIALogger.logDebug(minutesToRun - elapsedMinutes + " minutes left to run.")
+		}
+	};
+}
