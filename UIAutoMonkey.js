@@ -23,9 +23,9 @@
 function UIAutoMonkey() {
 		
 	this.config = {
-		//run either by minutesToRun or numberOfEvents. Only one of these can set. (To use minutes you can use config.numberOfEvents = false)
+		//run either by minutesToRun or numberOfEvents. Only one of these can set. (To use minutes you can use config.numberOfEvents = 0)
 		//minutesToRun = 60 * 8; //sample to run for 8 hours.
-		//checkTimeEvery = 60; //how often to check (in events) if minutesToRun has occurred. 
+		//checkTimeEvery = 60; //how often to check (in events) if minutesToRun has is used. 
 		numberOfEvents: 1000,
 		delayBetweenEvents: 0.05,    // In seconds
 		
@@ -66,10 +66,10 @@ function UIAutoMonkey() {
 			//a string. One useful idiom using tuneup.js is
 			//#import tuneup.js
 			//config.anrSettings.fingerprintFunction = function() {return logVisibleElementTreeJSON(false)};
-	        fingerprintFunction = false,
-			eventsBeforeANRDeclared = 900; //throw exception if the fingerprint hasn't changed within this number of events
-			eventsBetweenSnapshots = 300; //how often to take a snapshot using the fingerprintFunction 
-			debug = false; //if true extra logging is made			
+	        fingerprintFunction: false,
+			eventsBeforeANRDeclared: 1500, //throw exception if the fingerprint hasn't changed within this number of events
+			eventsBetweenSnapshots: 150, //how often (in events) to take a snapshot using the fingerprintFunction 
+			debug: false //if true extra logging is made			
 		},
 
 		// If the following line is uncommented, then screenshots are taken
@@ -212,7 +212,7 @@ UIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 	if (this.config.minutesToRun && this.config.numberOfEvents) {
 		throw "invalid configuration. You cannot define both minutesToRun and numberOfEvents"
 	}
-	var conditionHandlers = this.config.conditionHandlers | []; //For legacy configs, if not present default to empty.
+	var conditionHandlers = this.config.conditionHandlers || []; //For legacy configs, if not present default to empty.
 	var useConditionHandlers = conditionHandlers.length > 0;
 	var checkTime = false;
 	var localNumberOfEvents = this.config.numberOfEvents; //we may modify so we want to leave config untouched
@@ -233,7 +233,7 @@ UIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
     } 
 	
 	for (var i = 0; i < localNumberOfEvents; i++) {
-		if (checkTime && ((i % checkTimeEvery) == 0)) { //check the time if needed
+		if (checkTime && (i % checkTimeEvery == 0)) { //check the time if needed
 			var currTime = new Date().getTime();
 			var elapsedMinutes = (currTime-startTime) / 60000;
 			if (elapsedMinutes >= this.config.minutesToRun) {
@@ -280,7 +280,7 @@ UIAutoMonkey.prototype.anrCheck = function(i, fingerprintFunction, debugFlag){
 		this.anrMaxElapsedCount = Math.max(this.anrMaxElapsedCount, elapsedCount);
 		UIALogger.logDebug("UIAutoMonkey:anrCheck(): snapshot == with elapsed count=" + elapsedCount);
 		if (elapsedCount > this.config.anrSettings.eventsBeforeANRDeclared) {
-			UIALogger.logDebug("duplicate snapshot detected" + anrSnapshot);
+			UIALogger.logDebug("duplicate snapshot detected" + this.anrSnapshot);
 			throw "anr exception-identical after " + elapsedCount + " events";
 		};
 	};
