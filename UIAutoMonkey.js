@@ -23,8 +23,54 @@
 function UIAutoMonkey() {
 		
 	this.config = {
+		//run either by minutesToRun or numberOfEvents. Only one of these can set. (To use minutes you can use config.numberOfEvents = false)
+		//minutesToRun = 60 * 8; //sample to run for 8 hours.
+		//checkTimeEvery = 60; //how often to check (in events) if minutesToRun has occurred. 
 		numberOfEvents: 1000,
 		delayBetweenEvents: 0.05,    // In seconds
+		
+	   /**
+		* sometimes the monkey can fall into UI Holes from which it it is hard to escape. The monkey may then spend an inordinate
+		* amount of time in such holes, neglecting other parts of the application. 
+		*
+		* For example, if a parent Window P has a large image
+		* and clicking on the image opens a child window C from which one exits by tapping a small X on the top right, then until that small X is
+		* tapped we will reamin in C. conditionHandlers offer the developer the option to periodically recognize that we are in C and press the X.
+		*
+		* See buttonHandler.js for a specialized conditionHandler useful when a top level button can be used to escape from a UI hole.
+		*
+	    * conditionHandlers are objects that respond to the following function calls:
+	    *  isTrue(target, eventNumber): returns True if the condition is true given target and event number eventNumber.
+	    *  checkEvery(): How many events should pass before we check.
+	    *  handle(target, mainWindow) handle the condition.
+	    *  isExclusive() if true then if this condition's handler is invoked then processing subsequent conditions is skipped for this particular event. This
+	    *    is usually set to true as it allows the condition to exit a UI hole and at that point there may be no point executing other conditions
+	    *  logStats() log statics using UIALogger;
+	    * condition handers must have the following property
+	    *  statsHandleInvokedCount - the count of the number of times we were invoked
+	    */
+		conditionHandlers: [],
+		
+		/**
+		* Unfortunately if the application is not responsive "ANR", the monkey may not notice and continue to fire events not realizing that
+		* the application is stuck. When run via continuous integration users may not notice that "successful" monkey runs in fact were in an 
+		* ANR state.
+		*
+		* To deal with this the monkey supports ANR detection. Using an anrFingerprint function it periodically takes a fingerprint and if these
+		* are identical for a specificed interval then an ANR exception is thrown. 
+		*
+		*
+		*/
+		anrSettings: {
+			//fingerprintFunction defaults to false which will disable ANR fingerprinting. Otherwise set to a function that will return
+			//a string. One useful idiom using tuneup.js is
+			//#import tuneup.js
+			//config.anrSettings.fingerprintFunction = function() {return logVisibleElementTreeJSON(false)};
+	        fingerprintFunction = false,
+			eventsBeforeANRDeclared = 900; //throw exception if the fingerprint hasn't changed within this number of events
+			eventsBetweenSnapshots = 300; //how often to take a snapshot using the fingerprintFunction 
+			debug = false; //if true extra logging is made			
+		},
 
 		// If the following line is uncommented, then screenshots are taken
 		// every "n" seconds.
@@ -54,6 +100,7 @@ function UIAutoMonkey() {
 			multipleTouches: 0.05,
 			longPress: 0.05
 		}
+		
 
 		// Uncomment the following to restrict events to a rectangluar area of
 		// the screen
@@ -65,7 +112,6 @@ function UIAutoMonkey() {
 		*/
 
 	};
-	
 }
 
 // --- --- --- ---
@@ -158,17 +204,113 @@ UIAutoMonkey.prototype.allEvents = {
 // --- --- --- ---
 // Helper methods
 //
-
+var anrSnapshot = "Initial snapshot";
 UIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 	// Called at the bottom of this script to, you know...
 	//
 	// RELEASE THE MONKEY!
-
-	for(var i = 0; i < this.config.numberOfEvents; i++) {
+	if (this.config.minutesToRun && this.config.numberOfEvents) {
+		throw "invalid configuration. You cannot define both minutesToRun and numberOfEvents"
+	}
+	var conditionHandlers = this.config.conditionHandlers | []; //For legacy configs, if not present default to empty.
+	var useConditionHandlers = conditionHandlers.length > 0;
+	var checkTime = false;
+	var localNumberOfEvents = this.config.numberOfEvents; //we may modify so we want to leave config untouched
+	if (this.config.minutesToRun) {
+		checkTime = true;
+		localNumberOfEvents = 2000000000;
+		var startTime = new Date().getTime();
+		var checkTimeEvery = this.config.checkTimeEvery || 60; //number of events to pass before we check the time
+	}
+	//setup anr parameters as needed
+	var anrFingerprintFunction = this.config.anrSettings ? this.config.anrSettings.fingerprintFunction : false; //handle legacy settings missing this
+	if (anrFingerprintFunction) {
+		this.anrSnapshot = "Initial snapshot-nothing should match this!!";
+		this.anrSnapshotTakenAtIndex = -1;		
+		var anrEventsBetweenSnapshots = this.config.anrSettings.eventsBetweenSnapshots || 300;
+		var anrDebug = this.config.anrSettings.debug;
+		this.anrMaxElapsedCount = -1;
+    } 
+	
+	for (var i = 0; i < localNumberOfEvents; i++) {
+		if (checkTime && ((i % checkTimeEvery) == 0)) { //check the time if needed
+			var currTime = new Date().getTime();
+			var elapsedMinutes = (currTime-startTime) / 60000;
+			if (elapsedMinutes >= this.config.minutesToRun) {
+				UIALogger.logDebug("Ending monkey after " + elapsedMinutes + " minutes run time.");
+				break;
+			} else {
+				UIALogger.logDebug(this.config.minutesToRun - elapsedMinutes + " minutes left to run.")
+			}
+		}
 		this.triggerRandomEvent();
+		if (anrFingerprintFunction && (i % anrEventsBetweenSnapshots == 0)) this.anrCheck(i, anrFingerprintFunction, anrDebug);
 		if (this.config.screenshotInterval) this.takeScreenShotIfItIsTime();
+		if (useConditionHandlers) this.processConditionHandlers(conditionHandlers, i+1, this.target());
 		this.delay();
 	}
+	// publish stats if warranted
+	if (anrFingerprintFunction) {
+		UIALogger.logDebug("ANR Statistics");
+		UIALogger.logDebug("ANR max event count for identical fingerprint snapshots :: events before ANR declared: " + this.anrMaxElapsedCount + " :: " + this.config.anrSettings.eventsBeforeANRDeclared);
+	}
+	if (useConditionHandlers) {
+		UIALogger.logDebug("ConditionHandler Statistics")
+		conditionHandlers.forEach(function(aHandler) {aHandler.logStats()});
+		conditionHandlers.sort(function(aHandler, bHandler) {return aHandler.statsHandleInvokedCount - bHandler.statsHandleInvokedCount});
+		UIALogger.logDebug("sorted by HandleInvokedCount");
+		conditionHandlers.forEach(function(aHandler) {UIALogger.logDebug(aHandler + ": " + aHandler.statsHandleInvokedCount)});
+    }
+};
+
+
+UIAutoMonkey.prototype.anrCheck = function(i, fingerprintFunction, debugFlag){
+
+	var newSnapshot = fingerprintFunction();
+	if (newSnapshot != this.anrSnapshot) {
+		//all is good, we're moving along
+		if (debugFlag) UIALogger.logDebug("UIAutoMonkey:anrCheck(): snapshot != for event " + i);
+		this.anrSnapshot = newSnapshot;
+		this.anrSnapshotTakenAtIndex = i;
+	} 
+	else {
+		//have a match
+		//for how many counts?
+		var elapsedCount = i - this.anrSnapshotTakenAtIndex;
+		this.anrMaxElapsedCount = Math.max(this.anrMaxElapsedCount, elapsedCount);
+		UIALogger.logDebug("UIAutoMonkey:anrCheck(): snapshot == with elapsed count=" + elapsedCount);
+		if (elapsedCount > this.config.anrSettings.eventsBeforeANRDeclared) {
+			UIALogger.logDebug("duplicate snapshot detected" + anrSnapshot);
+			throw "anr exception-identical after " + elapsedCount + " events";
+		};
+	};
+};
+
+
+UIAutoMonkey.prototype.processConditionHandlers = function(conditionHandlers, eventNumberPlus1, target) {
+	var mainWindow = target.frontMostApp().mainWindow(); //optimization to let handlers do less work. Assumes isTrue() doesn't alter the mainWindow.
+	for (var i = 0; i < conditionHandlers.length; i++) {
+		var aCondition = conditionHandlers[i];
+		if ((eventNumberPlus1 % aCondition.checkEvery()) != 0) {
+			continue; //not yet time to process aCondition.
+		}
+		try {
+			UIATarget.localTarget().pushTimeout(0);
+			var isConditionTrue = aCondition.isTrue(target, eventNumberPlus1, mainWindow);
+		}
+		finally {
+		    UIATarget.localTarget().popTimeout();
+		}
+		if (isConditionTrue) {
+				aCondition.handle(target, mainWindow);
+				if (aCondition.isExclusive()) {
+					break;
+				} else {
+					mainWindow = target.frontMostApp().mainWindow(); //could be stale
+				}
+		};
+	};
+
 };
 
 UIAutoMonkey.prototype.triggerRandomEvent = function() {

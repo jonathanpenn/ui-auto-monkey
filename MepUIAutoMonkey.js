@@ -31,6 +31,7 @@ MepUIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 	// RELEASE THE MONKEY!
 	for (var i = 0; i < this.config.numberOfEvents; i++) {
 		this.triggerRandomEvent();
+		this.anrCheck(i);
 		if (this.config.screenshotInterval) this.takeScreenShotIfItIsTime();
 		this.processConditionHandlers(this.conditionHandlers, i+1, this.target());
 		if ((i % 60) == 0 ) {
@@ -39,6 +40,49 @@ MepUIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 		this.delay();
 	}
 };
+
+var anrCheckEnabled = true;
+var anrSnapshot = "Initial snapshot";
+var anrSnapshotTakenAtIndex = -1;
+var anrSnapshotErrorThresholdCount = 50;
+var checkANRCount = 20;
+var debugANR = true;
+
+MepUIAutoMonkey.prototype.anrCheck = function(i){
+	if (!anrCheckEnabled) {
+		return;
+	};
+	//for now we'll check every checkANRCount, later make it configurable, possibly by time, and have a strategy to take more often if we suspect ANRdom
+	if ((i % checkANRCount) != 0) {
+		return;
+	};
+	var newSnapshot = this.takeANRSnapshot();
+	if (newSnapshot != anrSnapshot) {
+		//all is good, we're moving along
+		UIALogger.logDebug("MepUIAutoMonkey:anrCheck(): snapshot !=");
+		anrSnapshot = newSnapshot;
+		anrSnapshotTakenAtIndex = i;
+	} 
+	else {
+		//have a match
+		//for how many counts?
+		var elapsedCount = i - anrSnapshotTakenAtIndex;
+		UIALogger.logDebug("MepUIAutoMonkey:anrCheck(): snapshot == with elapsed count=" + elapsedCount);
+		if (elapsedCount > anrSnapshotErrorThresholdCount) {
+			UIALogger.logDebug("duplicated snapshot detected" + anrSnapshot);
+			throw new "anr exception-identical after " + elapsedCount + " events";
+		};
+	};
+};
+
+MepUIAutoMonkey.prototype.takeANRSnapshot = function() {
+	var mainWindow = UIATarget.localTarget().frontMostApp().mainWindow();
+	if (debugANR) {
+		mainWindow.logVisibleElementTreeJSON(false);
+	};
+	return mainWindow.elementJSONDump(true, false, true);
+}
+
 
 MepUIAutoMonkey.prototype.processConditionHandlers = function(conditionHandlers, eventNumberPlus1, target) {
 	var mainWindow = target.frontMostApp().mainWindow(); //optimization to let handlers do less work. Assumes isTrue() doesn't alter the mainWindow.
