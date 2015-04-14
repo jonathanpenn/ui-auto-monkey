@@ -204,7 +204,6 @@ UIAutoMonkey.prototype.allEvents = {
 // --- --- --- ---
 // Helper methods
 //
-var anrSnapshot = "Initial snapshot";
 UIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 	// Called at the bottom of this script to, you know...
 	//
