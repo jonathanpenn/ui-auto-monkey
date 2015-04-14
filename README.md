@@ -104,6 +104,87 @@ Check out the built in events for more information and the helper methods availa
 (Special thanks to [Oliver Halligon][o] for the new customization features!)
 
   [o]: https://github.com/AliSoftware
+  
+## Advanced Scenarios
+After enjoying your monkey for a while you may notice some situations that require some intervention.
+
+### Specifying runtime
+If you run your monkey for a specific number of events it's not clear just how long it will run for. Each event might take a little while to process. If you run for a long time the imprecision adds up. 
+
+```
+monkey.config.minutesToRun = 60 * 8; //run for 8 hours
+monkey.config.checkTimeEvery = 60; //check the time every 60 events. (optional and defaults to 60)
+monkey.config.numberOfEvents = false; // turn off to make clear that we want minutes
+```
+
+The above will run the monkey for ~8 hours. Every 60 events it will check the time (for efficiency it doesn't check every event).  To avoid ambiguity if you want to run in minutes you must turn off monkey.config.numberOfEvents by setting it to `0` or `false`.
+
+### UI Holes
+
+At times your playful monkey will enter a page from which it rarely escapes. Perhaps the only way out is a little "X" button on the top right, and until that is pressed the monkey will remain on the page. This may prevent your monkey from fully visiting your application. Wouldn't it be nice to tell the monkey "Check every so often and if there's an "X" button press it"? 
+
+The monkey has a notion of condition handlers. The monkey is not too smart, but condition handlers let you add clever behavior. 
+
+```
+var handlers = [ ];
+handlers.push(new ButtonHandler("Back", 10, true));
+...
+monkey.config.conditionHandlers = handlers;
+```
+This instructs the monkey that every 10 events it will check to see if there is a visible Back button on the navigation bar, and if so press it. 
+
+You can add as many handlers as you want. ButtonHander is just a specific type of handler that is ready to rumble with the Monkey, but you can add other types of handlers as long as they conform to the conditionHandler protocol defined in UIAutoMonkey.
+
+Now the conditionHandlers are processed right in the monkeys inner loop, so it is usually prudent to not check the handlers on every single event. That would be inefficient, and furthermore you don't want to jump out of UI Holes immediately. We want to linger for a while. The second parameter is how often (in event units) to check if the buttonHander's condition `isTrue()`. The 3rd parm is `true` if the button descends from the navigation bar, or `false` if it is a top level button.
+
+If you need more advanced detection you can add an optional 4th parameter, the `optionalIsTrueFunction`. This can be used for more advanced detection if the condition is true.
+
+ConditionHandlers (remember, a ButtonHandler is a type of conditionHandler) have an `isExclusive()` method. If true, and if the condition is true, then no other conditions are considered for the current pass. ButtonHandlers always return `true` for `isExclusive()`.
+
+For example:
+
+```
+var handlers = [ ];
+handlers.push(new ButtonHandler("Back", 10, true));
+handlers.push(new ButtonHandler("Done", 10, true));
+...
+monkey.config.conditionHandlers = handlers;
+```
+
+On pass 9 through the monkey neither handler will be considered beause 9 is not a multiple of 10. 
+
+One pass 10 through the monkey lets assume that there is a "Back" button visible on the navigation bar. The monkey will invoke the first buttonHandler, it will indicate that it finds a button. The monkey will ask the handler to `handle()` the condition, and finally it will ask the handler if it  `isExclusive()` to which it will return `true`. The monkey will then skip any other handlers for event 10, so it will not invoke the Done buttonHandler.
+
+For efficiency the most popular exclusive handlers should be placed first. At the end of the monkey run statistics are logged that indicate how often each handler returned `true`.
+
+### Application Not Repsonding ("ANR")
+Sometimes your application may stop responding, but our playful monkey doesn't care. Hours can pass while the monkey thinks it's tapping, dragging etc... when in reality the application is frozen.
+
+This becomes worse when our monkey is connected to an unattended continuous integration server. The monkey run may finnish and erroneously report success. What's need is some way to detect ANR condtions and fail the monkey.
+
+The monkey can check to see if the application is progressing. It does this by using a fingerprintFunction to document the state of the application. If the state of the application fails to change the monkey can declare an ANR.
+
+The fingerprint function is supplied by the client. One handy, free fingerprint function is `elementJSONDump()` found in the opensouce  [Tuneup.js](https://github.com/alexvollmer/). This function creates a logical textual description of the main view.
+
+
+```
+//ANR handling
+#import ./tuneup.js
+...
+var aFingerprintFunction = function() {
+	var mainWindow = UIATarget.localTarget().frontMostApp().mainWindow();
+	//mainWindow.logVisibleElementTreeJSON(false);  in case you want to see the equivalent output
+	return mainWindow.elementJSONDump(true, false, true);
+};
+monkey.config.anrSettings.fingerprintFunction = aFingerprintFunction;
+monkey.config.anrSettings.eventsBeforeANRDeclared = 1500; //throw exception if the fingerprint hasn't changed within this number of events
+monkey.config.anrSettings.eventsBetweenSnapshots = 150; //how often (in events) to take a snapshot using the fingerprintFunction 
+monkey.config.anrSettings.debug = true;  //log extra info on ANR state changes
+```
+
+The above will take a current snapshot every 150 events using the fingerprintFunction. If it is the same as the prior snapshot *and* if that's been the case for 1500 events, then an exception will be thrown and the monkey will stop. Otherwise the current snapshot will become the prior snapshot.
+
+
 
 ## For More Info
 
