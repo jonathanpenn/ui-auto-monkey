@@ -184,6 +184,7 @@ monkey.config.anrSettings.debug = true;  //log extra info on ANR state changes
 
 The above will take a current snapshot every 150 events using the fingerprintFunction. If it is the same as the prior snapshot *and* if that's been the case for 1500 events, then an exception will be thrown and the monkey will stop. Otherwise the current snapshot will become the prior snapshot.
 
+At the end of the run statistics are logged indicating the max number of events that the snapshot was identical, and what the `monkey.config.anrSettings.eventsBeforeANRDeclared` was. You can use this to see how close the system was to throwing an ANR exception.
 
 
 ## For More Info
