@@ -447,5 +447,5 @@ UIAutoMonkey.RELEASE_THE_MONKEY = function() {
 	(new UIAutoMonkey()).RELEASE_THE_MONKEY();
 };
 
-//UIAutoMonkey.RELEASE_THE_MONKEY();
+UIAutoMonkey.RELEASE_THE_MONKEY();
 
