@@ -135,7 +135,7 @@ This instructs the monkey that every 10 events it will check to see if there is 
 
 You can add as many handlers as you want. ButtonHander is just a specific type of handler that is ready to rumble with the Monkey, but you can add other types of handlers as long as they conform to the conditionHandler protocol defined in UIAutoMonkey.
 
-Now the conditionHandlers are processed right in the monkeys inner loop, so it is usually prudent to not check the handlers on every single event. That would be inefficient, and furthermore you don't want to jump out of UI Holes immediately. We want to linger for a while. The second parameter is how often (in event units) to check if the buttonHander's condition `isTrue()`. The 3rd parm is `true` if the button descends from the navigation bar, or `false` if it is a top level button.
+Now the conditionHandlers are processed right in the monkey's inner loop, so it is usually prudent to not check the handlers on every single event. That would be inefficient, and furthermore you don't want to jump out of UI Holes immediately: we want to linger for a while. The second parameter is how often (in event units) to check if the buttonHander's condition `isTrue()`. The 3rd parm is `true` if the button descends from the navigation bar, or `false` if it is a top level button.
 
 If you need more advanced detection you can add an optional 4th parameter, the `optionalIsTrueFunction`. This can be used for more advanced detection if the condition is true.
 
@@ -160,11 +160,11 @@ For efficiency the most popular exclusive handlers should be placed first. At th
 ### Application Not Repsonding ("ANR")
 Sometimes your application may stop responding, but our playful monkey doesn't care. Hours can pass while the monkey thinks it's tapping, dragging etc... when in reality the application is frozen.
 
-This becomes worse when our monkey is connected to an unattended continuous integration server. The monkey run may finnish and erroneously report success. What's need is some way to detect ANR condtions and fail the monkey.
+This becomes worse when our monkey is connected to an unattended continuous integration server. The monkey run may finish and erroneously report success. What's need is some way to detect ANR condtions and fail the monkey.
 
 The monkey can check to see if the application is progressing. It does this by using a fingerprintFunction to document the state of the application. If the state of the application fails to change the monkey can declare an ANR.
 
-The fingerprint function is supplied by the client. One handy, free fingerprint function is `elementJSONDump()` found in the opensouce  [Tuneup.js](https://github.com/alexvollmer/). This function creates a logical textual description of the main view.
+The fingerprint function is supplied by the client. One handy, free fingerprint function is `elementAccessorDump()` found in the opensouce [Tuneup.js](https://github.com/alexvollmer/). This function creates a logical textual description of the main view.
 
 
 ```
@@ -173,16 +173,17 @@ The fingerprint function is supplied by the client. One handy, free fingerprint 
 ...
 var aFingerprintFunction = function() {
 	var mainWindow = UIATarget.localTarget().frontMostApp().mainWindow();
-	//mainWindow.logVisibleElementTreeJSON(false);  in case you want to see the equivalent output
-	return mainWindow.elementJSONDump(true, false, true);
+	var aString = mainWindow.elementAccessorDump("tree", true);
+    //UIALogger.logDebug("fingerprintFunction tree=" + aString);
+	return aString;
 };
 monkey.config.anrSettings.fingerprintFunction = aFingerprintFunction;
-monkey.config.anrSettings.eventsBeforeANRDeclared = 1500; //throw exception if the fingerprint hasn't changed within this number of events
-monkey.config.anrSettings.eventsBetweenSnapshots = 150; //how often (in events) to take a snapshot using the fingerprintFunction 
+monkey.config.anrSettings.eventsBeforeANRDeclared = 1800; //throw exception if the fingerprint hasn't changed within this number of events
+monkey.config.anrSettings.eventsBetweenSnapshots = 180; //how often (in events) to take a snapshot using the fingerprintFunction 
 monkey.config.anrSettings.debug = true;  //log extra info on ANR state changes
 ```
 
-The above will take a current snapshot every 150 events using the fingerprintFunction. If it is the same as the prior snapshot *and* if that's been the case for 1500 events, then an exception will be thrown and the monkey will stop. Otherwise the current snapshot will become the prior snapshot.
+The above will take a current snapshot every 180 events using the fingerprintFunction. If it is the same as the prior snapshot *and* if that's been the case for more than 1800 events, then an exception will be thrown and the monkey will stop. Otherwise the current snapshot will become the prior snapshot.
 
 At the end of the run statistics are logged indicating the max number of events that the snapshot was identical, and what the `monkey.config.anrSettings.eventsBeforeANRDeclared` was. You can use this to see how close the system was to throwing an ANR exception.
 

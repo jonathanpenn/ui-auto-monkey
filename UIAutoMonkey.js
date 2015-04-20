@@ -29,9 +29,9 @@ function UIAutoMonkey() {
 		numberOfEvents: 1000,
 		delayBetweenEvents: 0.05,    // In seconds
 		
-	   /**
-		* sometimes the monkey can fall into UI Holes from which it it is hard to escape. The monkey may then spend an inordinate
-		* amount of time in such holes, neglecting other parts of the application. 
+		/**
+		* Sometimes the monkey can fall into UI Holes from which it it is hard to escape. The monkey may then spend an inordinate
+		* amount of time in such holes, neglecting other parts of the application.
 		*
 		* For example, if a parent Window P has a large image
 		* and clicking on the image opens a child window C from which one exits by tapping a small X on the top right, then until that small X is
@@ -39,16 +39,17 @@ function UIAutoMonkey() {
 		*
 		* See buttonHandler.js for a specialized conditionHandler useful when a top level button can be used to escape from a UI hole.
 		*
-	    * conditionHandlers are objects that respond to the following function calls:
-	    *  isTrue(target, eventNumber): returns True if the condition is true given target and event number eventNumber.
-	    *  checkEvery(): How many events should pass before we check.
-	    *  handle(target, mainWindow) handle the condition.
-	    *  isExclusive() if true then if this condition's handler is invoked then processing subsequent conditions is skipped for this particular event. This
-	    *    is usually set to true as it allows the condition to exit a UI hole and at that point there may be no point executing other conditions
-	    *  logStats() log statics using UIALogger;
-	    * condition handers must have the following property
-	    *  statsHandleInvokedCount - the count of the number of times we were invoked
-	    */
+		* conditionHandlers are objects that respond to the following methods:
+		*  isTrue(target, eventNumber): returns True if the condition is true given target and event number eventNumber.
+		*  checkEvery(): How many events should pass before we check.
+		*  handle(target, mainWindow) handle the condition.
+		*  isExclusive() if true then if this condition's handler is invoked then processing subsequent conditions is skipped for this particular event. This
+		*	 is usually set to true as it allows the condition to exit a UI hole and at that point there may be no point executing other conditions
+		*  logStats() log statics using UIALogger;
+		* condition handers must have the following property
+		*  statsHandleInvokedCount - the count of the number of times we were invoked
+		*/
+
 		conditionHandlers: [],
 		
 		/**
