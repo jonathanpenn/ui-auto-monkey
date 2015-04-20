@@ -174,7 +174,7 @@ The fingerprint function is supplied by the client. One handy, free fingerprint 
 var aFingerprintFunction = function() {
 	var mainWindow = UIATarget.localTarget().frontMostApp().mainWindow();
 	var aString = mainWindow.elementAccessorDump("tree", true);
-    //UIALogger.logDebug("fingerprintFunction tree=" + aString);
+	//UIALogger.logDebug("fingerprintFunction tree=" + aString);
 	return aString;
 };
 monkey.config.anrSettings.fingerprintFunction = aFingerprintFunction;
