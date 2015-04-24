@@ -172,10 +172,19 @@ The fingerprint function is supplied by the client. One handy, free fingerprint 
 #import ./tuneup.js
 ...
 var aFingerprintFunction = function() {
-	var mainWindow = UIATarget.localTarget().frontMostApp().mainWindow();
-	var aString = mainWindow.elementAccessorDump("tree", true);
-	//UIALogger.logDebug("fingerprintFunction tree=" + aString);
-	return aString;
+    var mainWindow = UIATarget.localTarget().frontMostApp().mainWindow();
+    //if an error occurs log it and make it the fingerprint
+    try {
+        var aString = mainWindow.elementAccessorDump("tree", true);
+        if (monkey.config.anrSettings.debug) {
+            UIALogger.logDebug("fingerprintFunction tree=" + aString);
+        }
+    }
+    catch (e) {
+        aString = "fingerprintFunction error:" + e;
+        UIALogger.logWarning(aString);
+    }
+    return aString;
 };
 monkey.config.anrSettings.fingerprintFunction = aFingerprintFunction;
 monkey.config.anrSettings.eventsBeforeANRDeclared = 1800; //throw exception if the fingerprint hasn't changed within this number of events
