@@ -164,7 +164,7 @@ This becomes worse when our monkey is connected to an unattended continuous inte
 
 The monkey can check to see if the application is progressing. It does this by using a fingerprintFunction to document the state of the application. If the state of the application fails to change the monkey can declare an ANR.
 
-The fingerprint function is supplied by the client. One handy, free fingerprint function is `elementAccessorDump()` found in the opensouce [Tuneup.js](https://github.com/alexvollmer/). This function creates a logical textual description of the main view.
+The fingerprint function is supplied by the client. One handy, free fingerprint function is `elementAccessorDump()` found in the open source [Tuneup.js](https://github.com/alexvollmer/). This function creates a logical textual description of the main view.
 
 
 ```
