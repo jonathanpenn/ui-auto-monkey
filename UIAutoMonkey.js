@@ -113,6 +113,13 @@ function UIAutoMonkey() {
 		*/
 
 	};
+
+	// Dismiss alerts 
+	UIATarget.onAlert = function onAlert(alert) {
+		var title = alert.name();
+		UIALogger.logMessage('On Alert: ' + title);
+		return true;
+	}
 }
 
 // --- --- --- ---
@@ -232,6 +239,7 @@ UIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 		this.anrMaxElapsedCount = -1;
     } 
 	
+	var targetBundleId = this.target().frontMostApp().bundleID();
 	for (var i = 0; i < localNumberOfEvents; i++) {
 		if (checkTime && (i % checkTimeEvery == 0)) { //check the time if needed
 			var currTime = new Date().getTime();
@@ -243,6 +251,13 @@ UIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 				UIALogger.logDebug(this.config.minutesToRun - elapsedMinutes + " minutes left to run.")
 			}
 		}
+
+		var currentBundleId = this.target().frontMostApp().bundleID();
+		if (currentBundleId !== targetBundleId) {
+			UIALogger.logDebug("Ending monkey because it went outside of the tested app ('" + currentBundleId + "')");
+			break;
+		}
+
 		this.triggerRandomEvent();
 		if (anrFingerprintFunction && (i % anrEventsBetweenSnapshots == 0)) this.anrCheck(i, anrFingerprintFunction, anrDebug);
 		if (this.config.screenshotInterval) this.takeScreenShotIfItIsTime();
