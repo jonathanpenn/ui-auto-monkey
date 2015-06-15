@@ -31,6 +31,7 @@ At this point you can simply click the playback button at the bottom of the Inst
 
 Once you've set up UI AutoMonkey in your Instruments document, you can create a custom template tied to this application that you can double click to run. First, make sure the Instruments document is stopped by clicking the red record button in *the upper left* of the Instruments document. Then choose "Save As Template..." from the "File" menu and choose where to put the file. Now, you can double click this template to open Instruments with the UI AutoMonkey script already embedded. Just click the red record button in *the upper left* of the Instruments document and the app will launch and run.
 
+
 ## Configuration and Beyond
 
 For simplicity's sake, the tool is just a single script you paste into a UI Automation template for your application. You could wire it up in a [command line workflow][automation] if you want, but that would take a bit more effort than you need to just get it running.
@@ -71,6 +72,12 @@ At the top of the script, you'll see a JavaScript dictionary of configuration se
 `eventWeights` are relative weights to determine how often an event gets triggered. If the `tap` event is 100, and `orientation` is 1, then a tap is 100 times more likely to occur than a device orientation. Adjust these to match the best set of events for your application.
 
 `touchProbability` controls the different kinds of `tap` events. By default, a tap is just a single tap. Adjust these settings to set how often a double tap or long press occurs. Each of these values must be between 0 and 1.
+
+
+### Troubleshooting
+
+Running on device, the script may fail with a vague message: "An error occurred while trying to run the script." Make sure that under the Developer menu in device settings, the "Enable UI Automation" option is toggled on.
+
 
 ## Custom Use
 
