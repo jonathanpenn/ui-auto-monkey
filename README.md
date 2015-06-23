@@ -37,32 +37,32 @@ For simplicity's sake, the tool is just a single script you paste into a UI Auto
 
 At the top of the script, you'll see a JavaScript dictionary of configuration settings:
 
-    config: {
-      numberOfEvents: 1000,
-      delayBetweenEvents: 0.05,    // In seconds
+	config: {
+	  numberOfEvents: 1000,
+	  delayBetweenEvents: 0.05,	// In seconds
 
-      // Events are triggered based on the relative weights here.
-      // The event with this highest number gets triggered the most.
-      eventWeights: {
-        tap: 30,
-        drag: 1,
-        flick: 1,
-        orientation: 1,
-        clickVolumeUp: 1,
-        clickVolumeDown: 1,
-        lock: 1,
-        pinchClose: 10,
-        pinchOpen: 10,
-        shake: 1
-      },
+	  // Events are triggered based on the relative weights here.
+	  // The event with this highest number gets triggered the most.
+	  eventWeights: {
+		tap: 30,
+		drag: 1,
+		flick: 1,
+		orientation: 1,
+		clickVolumeUp: 1,
+		clickVolumeDown: 1,
+		lock: 1,
+		pinchClose: 10,
+		pinchOpen: 10,
+		shake: 1
+	  },
 
-      // Probability that touch events will have these different properties
-      touchProbability: {
-        multipleTaps: 0.05,
-        multipleTouches: 0.05,
-        longPress: 0.05
-      }
-    },
+	  // Probability that touch events will have these different properties
+	  touchProbability: {
+		multipleTaps: 0.05,
+		multipleTouches: 0.05,
+		longPress: 0.05
+	  }
+	},
 
 `numberOfEvents` is pretty straightforward. It's how many events will happen to your application.
 
@@ -74,30 +74,56 @@ At the top of the script, you'll see a JavaScript dictionary of configuration se
 
 ## Custom Use
 
-You can import the monkey in an existing set of UI Automation script files and add custom events to trigger like so:
+As delivered the monkey starts itself. If you import it, it will start running immediately, which is probably not what you want if you want to customize its use. If you want to control when the monkey is released please follow the pattern in the SampleCustomization folder. In brief you want to set a global as set in SetGlobals.js, but due to Apple's javascript implementation you cannot simply set it beofre you import UIAutoMonkey.js. Instead you need to follow the pattern in the SampleCustomization folder.
 
-    // Usage & Customization example
-    // Save this UIAutoMonkey.js somewhere in your disk to import it and configure it in each of your Instruments instances
-    #import "/path/to/UIAutoMonkey.js"
+Save UIAutoMonkey.js somewhere in your disk to import it and configure it in each of your Instruments instances
+### In your test file
 
-    // Configure the monkey: use the default configuration but a bit tweaked
-    monkey = new UIAutoMonkey()
-    monkey.config.numberOfEvents = 1000;
-    monkey.config.screenshotInterval = 5;
-    // Of course, you can also override the default config completely with your own, using `monkey.config = { … }` instead
+```
+"use strict";
+#import "Includes.js"
 
-    // Configure some custom events if needed
-    monkey.config.eventWeights.customEvent1 = 300;
-    monkey.allEvents.customEvent1 = function() { … }
 
-    // Release the monkey!
-    monkey.RELEASE_THE_MONKEY();
+// Usage & Customization example
 
-Make sure you comment out the last line of `UIAutoMonkey.js` if you include it in your project:
+// Configure the monkey: use the default configuration but a bit tweaked
+monkey = new UIAutoMonkey();
+monkey.config.numberOfEvents = 1000;
+monkey.config.screenshotInterval = 5;
+// Of course, you can also override the default config completely with your own, using `monkey.config = { … }` instead
 
-    // UIAutoMonkey.RELEASE_THE_MONKEY();
+// Configure some custom events if needed
+monkey.config.eventWeights.customEvent1 = 300;
+monkey.allEvents.customEvent1 = function() { … }
 
-By default, this script will execute the monkey automatically. If you want to trigger it yourself after setting up the object, you'll need to comment out that last line so it doesn't go off on it's own before you are ready.
+// Release the monkey!
+monkey.RELEASE_THE_MONKEY();
+
+```
+
+###Includes.js
+Setup a single includes file. Due to Apple javascript limitations it is best to have all of your imports there. E.G
+
+```
+#import "SetGlobals.js"
+#import "/path/to/buttonHandler.js"
+"#import "/path/to/UIAutoMonkey.js""
+```
+You will need to adjust the imports to the path for UIAutoMonkey.js and the optional buttonHandler.js files
+
+###SetGlobals.js
+Have at least this global there:
+
+```
+UIAutoMonkeyClientWillReleaseTheMonkey = true;
+```
+
+When the monkey is released using the default release mechanism (UIAutoMonkeyClientWillReleaseTheMonkey is undefined or false) it executes
+```UIALogger.logDebug("Releasing the monkey directly from UIAutoMonkey");
+```
+and you will see this in the trace log. If your customization are not taking effect make sure that the entry "Release the monkey directly from UIAutoMonkey" is *not* in the trace log.
+
+
 
 Check out the built in events for more information and the helper methods available to you.
 
@@ -174,19 +200,19 @@ The fingerprint function is supplied by the client. One handy, free fingerprint 
 #import ./tuneup.js
 ...
 var aFingerprintFunction = function() {
-    var mainWindow = UIATarget.localTarget().frontMostApp().mainWindow();
-    //if an error occurs log it and make it the fingerprint
-    try {
-        var aString = mainWindow.elementAccessorDump("tree", true);
-        if (monkey.config.anrSettings.debug) {
-            UIALogger.logDebug("fingerprintFunction tree=" + aString);
-        }
-    }
-    catch (e) {
-        aString = "fingerprintFunction error:" + e;
-        UIALogger.logWarning(aString);
-    }
-    return aString;
+	var mainWindow = UIATarget.localTarget().frontMostApp().mainWindow();
+	//if an error occurs log it and make it the fingerprint
+	try {
+		var aString = mainWindow.elementAccessorDump("tree", true);
+		if (monkey.config.anrSettings.debug) {
+			UIALogger.logDebug("fingerprintFunction tree=" + aString);
+		}
+	}
+	catch (e) {
+		aString = "fingerprintFunction error:" + e;
+		UIALogger.logWarning(aString);
+	}
+	return aString;
 };
 monkey.config.anrSettings.fingerprintFunction = aFingerprintFunction;
 monkey.config.anrSettings.eventsBeforeANRDeclared = 1800; //throw exception if the fingerprint hasn't changed within this number of events
