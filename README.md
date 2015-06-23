@@ -137,6 +137,7 @@ You can add as many handlers as you want. ButtonHander is just a specific type o
 
 Now the conditionHandlers are processed right in the monkey's inner loop, so it is usually prudent to not check the handlers on every single event. That would be inefficient, and furthermore you don't want to jump out of UI Holes immediately: we want to linger for a while. The second parameter is how often (in event units) to check if the buttonHander's condition `isTrue()`. The 3rd parm is `true` if the button descends from the navigation bar, or `false` if it is a top level button.
 
+
 If you need more advanced detection you can add an optional 4th parameter, the `optionalIsTrueFunction`. This can be used for more advanced detection if the condition is true.
 
 ConditionHandlers (remember, a ButtonHandler is a type of conditionHandler) have an `isExclusive()` method. If true, and if the condition is true, then no other conditions are considered for the current pass. ButtonHandlers always return `true` for `isExclusive()`.
@@ -165,6 +166,7 @@ This becomes worse when our monkey is connected to an unattended continuous inte
 The monkey can check to see if the application is progressing. It does this by using a fingerprintFunction to document the state of the application. If the state of the application fails to change the monkey can declare an ANR.
 
 The fingerprint function is supplied by the client. One handy, free fingerprint function is `elementAccessorDump()` found in the open source [Tuneup.js](https://github.com/alexvollmer/). This function creates a logical textual description of the main view.
+
 
 
 ```

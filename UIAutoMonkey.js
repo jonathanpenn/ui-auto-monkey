@@ -32,6 +32,7 @@ function UIAutoMonkey() {
 		/**
 		* Sometimes the monkey can fall into UI Holes from which it it is hard to escape. The monkey may then spend an inordinate
 		* amount of time in such holes, neglecting other parts of the application.
+
 		*
 		* For example, if a parent Window P has a large image
 		* and clicking on the image opens a child window C from which one exits by tapping a small X on the top right, then until that small X is
@@ -120,6 +121,7 @@ function UIAutoMonkey() {
 		UIALogger.logMessage('On Alert: ' + title);
 		return true;
 	}
+
 }
 
 // --- --- --- ---
@@ -240,6 +242,7 @@ UIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
     } 
 	
 	var targetBundleId = this.target().frontMostApp().bundleID();
+
 	for (var i = 0; i < localNumberOfEvents; i++) {
 		if (checkTime && (i % checkTimeEvery == 0)) { //check the time if needed
 			var currTime = new Date().getTime();
@@ -463,5 +466,5 @@ UIAutoMonkey.RELEASE_THE_MONKEY = function() {
 	(new UIAutoMonkey()).RELEASE_THE_MONKEY();
 };
 
-UIAutoMonkey.RELEASE_THE_MONKEY();
+//UIAutoMonkey.RELEASE_THE_MONKEY();
 
