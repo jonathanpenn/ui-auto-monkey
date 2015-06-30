@@ -67,8 +67,8 @@ ButtonHandler.prototype.isTrue = function(target, eventCount, mainWindow) {
 	var result;
 	if (this.optionalIsTrueFunction == null) {
 		if (this.debugLogElementTreeOnIsTrue) {
-		 UIATarget.localTarget().logElementTree();
-	    }
+			UIATarget.localTarget().logElementTree();
+		}
 		var aButton = this.findButton(target);
 		result = this.isValidAndVisible(aButton);
 	} else {
