@@ -107,7 +107,7 @@ Setup a single includes file. Due to Apple javascript limitations it is best to 
 ```
 #import "SetGlobals.js"
 #import "/path/to/buttonHandler.js"
-"#import "/path/to/UIAutoMonkey.js""
+#import "/path/to/UIAutoMonkey.js"
 ```
 You will need to adjust the imports to the path for UIAutoMonkey.js and the optional buttonHandler.js files
 
