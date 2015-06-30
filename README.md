@@ -37,32 +37,32 @@ For simplicity's sake, the tool is just a single script you paste into a UI Auto
 
 At the top of the script, you'll see a JavaScript dictionary of configuration settings:
 
-	config: {
-	  numberOfEvents: 1000,
-	  delayBetweenEvents: 0.05,	// In seconds
+    config: {
+      numberOfEvents: 1000,
+      delayBetweenEvents: 0.05,    // In seconds
 
-	  // Events are triggered based on the relative weights here.
-	  // The event with this highest number gets triggered the most.
-	  eventWeights: {
-		tap: 30,
-		drag: 1,
-		flick: 1,
-		orientation: 1,
-		clickVolumeUp: 1,
-		clickVolumeDown: 1,
-		lock: 1,
-		pinchClose: 10,
-		pinchOpen: 10,
-		shake: 1
-	  },
+      // Events are triggered based on the relative weights here.
+      // The event with this highest number gets triggered the most.
+      eventWeights: {
+        tap: 30,
+        drag: 1,
+        flick: 1,
+        orientation: 1,
+        clickVolumeUp: 1,
+        clickVolumeDown: 1,
+        lock: 1,
+        pinchClose: 10,
+        pinchOpen: 10,
+        shake: 1
+      },
 
-	  // Probability that touch events will have these different properties
-	  touchProbability: {
-		multipleTaps: 0.05,
-		multipleTouches: 0.05,
-		longPress: 0.05
-	  }
-	},
+      // Probability that touch events will have these different properties
+      touchProbability: {
+        multipleTaps: 0.05,
+        multipleTouches: 0.05,
+        longPress: 0.05
+      }
+    },
 
 `numberOfEvents` is pretty straightforward. It's how many events will happen to your application.
 
@@ -119,7 +119,9 @@ UIAutoMonkeyClientWillReleaseTheMonkey = true;
 ```
 
 When the monkey is released using the default release mechanism (UIAutoMonkeyClientWillReleaseTheMonkey is undefined or false) it executes
-```UIALogger.logDebug("Releasing the monkey directly from UIAutoMonkey");
+
+```
+UIALogger.logDebug("Releasing the monkey directly from UIAutoMonkey");
 ```
 and you will see this in the trace log. If your customization are not taking effect make sure that the entry "Release the monkey directly from UIAutoMonkey" is *not* in the trace log.
 
@@ -163,7 +165,6 @@ You can add as many handlers as you want. ButtonHander is just a specific type o
 
 Now the conditionHandlers are processed right in the monkey's inner loop, so it is usually prudent to not check the handlers on every single event. That would be inefficient, and furthermore you don't want to jump out of UI Holes immediately: we want to linger for a while. The second parameter is how often (in event units) to check if the buttonHander's condition `isTrue()`. The 3rd parm is `true` if the button descends from the navigation bar, or `false` if it is a top level button.
 
-
 If you need more advanced detection you can add an optional 4th parameter, the `optionalIsTrueFunction`. This can be used for more advanced detection if the condition is true.
 
 ConditionHandlers (remember, a ButtonHandler is a type of conditionHandler) have an `isExclusive()` method. If true, and if the condition is true, then no other conditions are considered for the current pass. ButtonHandlers always return `true` for `isExclusive()`.
@@ -200,19 +201,19 @@ The fingerprint function is supplied by the client. One handy, free fingerprint 
 #import ./tuneup.js
 ...
 var aFingerprintFunction = function() {
-	var mainWindow = UIATarget.localTarget().frontMostApp().mainWindow();
-	//if an error occurs log it and make it the fingerprint
-	try {
-		var aString = mainWindow.elementAccessorDump("tree", true);
-		if (monkey.config.anrSettings.debug) {
-			UIALogger.logDebug("fingerprintFunction tree=" + aString);
-		}
-	}
-	catch (e) {
-		aString = "fingerprintFunction error:" + e;
-		UIALogger.logWarning(aString);
-	}
-	return aString;
+    var mainWindow = UIATarget.localTarget().frontMostApp().mainWindow();
+    //if an error occurs log it and make it the fingerprint
+    try {
+        var aString = mainWindow.elementAccessorDump("tree", true);
+        if (monkey.config.anrSettings.debug) {
+            UIALogger.logDebug("fingerprintFunction tree=" + aString);
+        }
+    }
+    catch (e) {
+        aString = "fingerprintFunction error:" + e;
+        UIALogger.logWarning(aString);
+    }
+    return aString;
 };
 monkey.config.anrSettings.fingerprintFunction = aFingerprintFunction;
 monkey.config.anrSettings.eventsBeforeANRDeclared = 1800; //throw exception if the fingerprint hasn't changed within this number of events
