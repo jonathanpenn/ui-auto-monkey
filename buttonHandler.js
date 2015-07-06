@@ -42,6 +42,23 @@ function ButtonHandler(buttonName, checkEveryNumber, useNavBar, optionalIsTrueFu
 	this.statsHandleInvokedCount = 0;
 	this.statsHandleNotValidAndVisibleCount = 0;
 	this.statsHandleErrorCount = 0;
+	this.debugLogElementTreeOnIsTrue = false;
+}
+
+ButtonHandler.prototype.setDebugLogElementTreeOnIsTrue = function(aBool) {
+	this.debugLogElementTreeOnIsTrue = aBool;
+}
+
+ButtonHandler.prototype.isObjectNil = function(anObject) {
+	return anObject.toString() == "[object UIAElementNil]"
+};
+
+ButtonHandler.prototype.isValidAndVisible = function(aButtonOrNil) {
+	if (this.isObjectNil(aButtonOrNil)) {
+		return false;
+	}
+	//we now expect aButtonOrNil to be a button
+	return aButtonOrNil.checkIsValid() && aButtonOrNil.isVisible();
 }
 
 // return true if we our button is visible 
@@ -49,18 +66,22 @@ ButtonHandler.prototype.isTrue = function(target, eventCount, mainWindow) {
 	this.statsIsTrueInvokedCount++;
 	var result;
 	if (this.optionalIsTrueFunction == null) {
+		if (this.debugLogElementTreeOnIsTrue) {
+			UIATarget.localTarget().logElementTree();
+		}
 		var aButton = this.findButton(target);
-        result = aButton.isNotNil() && aButton.validAndVisible();
-    } else {
-	    result = this.optionalIsTrueFunction(target, eventCount, mainWindow);
-    }
-    if (result) {
-	  this.statsIsTrueReturnedTrue++;
-    } else {
-	  this.statsIsTrueReturnedFalse++;
-    };
-    return result;
+		result = this.isValidAndVisible(aButton);
+	} else {
+		result = this.optionalIsTrueFunction(target, eventCount, mainWindow);
+	}
+	if (result) {
+		this.statsIsTrueReturnedTrue++;
+	} else {
+		this.statsIsTrueReturnedFalse++;
+	};
+	return result;
 };
+
 
 ButtonHandler.prototype.findButton = function(target) {
 	return this.useNavBar ? 
@@ -82,7 +103,7 @@ ButtonHandler.prototype.isExclusive = function() {
 ButtonHandler.prototype.handle = function(target, mainWindow) {
 	this.statsHandleInvokedCount++;
 	var button = this.findButton(target);
-	if (button.validAndVisible()) {
+	if (this.isValidAndVisible(button)) {
 		try{
 		    button.tap();
 		} catch(err) {
