@@ -457,11 +457,13 @@ UIAutoMonkey.prototype.takeScreenShotIfItIsTime = function() {
 	}
 };
 
-// Commodity function to call RELEASE_THE_MONKEY directly on UIAutoMonkey
-// if you don't need to customize your instance
-UIAutoMonkey.RELEASE_THE_MONKEY = function() {
-	(new UIAutoMonkey()).RELEASE_THE_MONKEY();
-};
+// If you want to control when the monkey is released please follow the pattern in the SampleCustomization folder. In brief you want to set a global
+// as set in SetGlobals.js, but due to Apple's javascript implementation you cannot simply set it before you import UIAutoMonkey.js.
+//
+if (typeof UIAutoMonkeyClientWillReleaseTheMonkey == 'undefined' || !UIAutoMonkeyClientWillReleaseTheMonkey) {
+	// the variable is not defined or it's defined and false
+	UIALogger.logDebug("Releasing the monkey directly from UIAutoMonkey"); //explain why it was released to aid in problem resolution.
+	UIAutoMonkey.RELEASE_THE_MONKEY();
+}
 
-UIAutoMonkey.RELEASE_THE_MONKEY();
 

@@ -1,0 +1,2 @@
+UIAutoMonkeyClientWillReleaseTheMonkey = true;
+

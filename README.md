@@ -81,30 +81,58 @@ Running on device, the script may fail with a vague message: "An error occurred 
 
 ## Custom Use
 
-You can import the monkey in an existing set of UI Automation script files and add custom events to trigger like so:
+As delivered the monkey starts itself. If you import it, it will start running immediately, which is probably not what you want if you want to customize its use. If you want to control when the monkey is released please follow the pattern in the SampleCustomization folder. In brief you want to set a global as set in SetGlobals.js, but due to Apple's javascript implementation you cannot simply set it beofre you import UIAutoMonkey.js. Instead you need to follow the pattern in the SampleCustomization folder.
 
-    // Usage & Customization example
-    // Save this UIAutoMonkey.js somewhere in your disk to import it and configure it in each of your Instruments instances
-    #import "/path/to/UIAutoMonkey.js"
+Save UIAutoMonkey.js somewhere in your disk to import it and configure it in each of your Instruments instances
+### In your test file
 
-    // Configure the monkey: use the default configuration but a bit tweaked
-    monkey = new UIAutoMonkey()
-    monkey.config.numberOfEvents = 1000;
-    monkey.config.screenshotInterval = 5;
-    // Of course, you can also override the default config completely with your own, using `monkey.config = { … }` instead
+```
+"use strict";
+#import "Includes.js"
 
-    // Configure some custom events if needed
-    monkey.config.eventWeights.customEvent1 = 300;
-    monkey.allEvents.customEvent1 = function() { … }
 
-    // Release the monkey!
-    monkey.RELEASE_THE_MONKEY();
+// Usage & Customization example
 
-Make sure you comment out the last line of `UIAutoMonkey.js` if you include it in your project:
+// Configure the monkey: use the default configuration but a bit tweaked
+monkey = new UIAutoMonkey();
+monkey.config.numberOfEvents = 1000;
+monkey.config.screenshotInterval = 5;
+// Of course, you can also override the default config completely with your own, using `monkey.config = { … }` instead
 
-    // UIAutoMonkey.RELEASE_THE_MONKEY();
+// Configure some custom events if needed
+monkey.config.eventWeights.customEvent1 = 300;
+monkey.allEvents.customEvent1 = function() { … }
 
-By default, this script will execute the monkey automatically. If you want to trigger it yourself after setting up the object, you'll need to comment out that last line so it doesn't go off on it's own before you are ready.
+// Release the monkey!
+monkey.RELEASE_THE_MONKEY();
+
+```
+
+###Includes.js
+Setup a single includes file. Due to Apple javascript limitations it is best to have all of your imports there. E.G
+
+```
+#import "SetGlobals.js"
+#import "/path/to/buttonHandler.js"
+#import "/path/to/UIAutoMonkey.js"
+```
+You will need to adjust the imports to the path for UIAutoMonkey.js and the optional buttonHandler.js files
+
+###SetGlobals.js
+Have at least this global there:
+
+```
+UIAutoMonkeyClientWillReleaseTheMonkey = true;
+```
+
+When the monkey is released using the default release mechanism (UIAutoMonkeyClientWillReleaseTheMonkey is undefined or false) it executes
+
+```
+UIALogger.logDebug("Releasing the monkey directly from UIAutoMonkey");
+```
+and you will see this in the trace log. If your customization are not taking effect make sure that the entry "Release the monkey directly from UIAutoMonkey" is *not* in the trace log.
+
+
 
 Check out the built in events for more information and the helper methods available to you.
 
@@ -172,6 +200,7 @@ This becomes worse when our monkey is connected to an unattended continuous inte
 The monkey can check to see if the application is progressing. It does this by using a fingerprintFunction to document the state of the application. If the state of the application fails to change the monkey can declare an ANR.
 
 The fingerprint function is supplied by the client. One handy, free fingerprint function is `elementAccessorDump()` found in the open source [Tuneup.js](https://github.com/alexvollmer/). This function creates a logical textual description of the main view.
+
 
 
 ```
