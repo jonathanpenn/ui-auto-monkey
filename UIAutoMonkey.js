@@ -463,7 +463,7 @@ UIAutoMonkey.prototype.takeScreenShotIfItIsTime = function() {
 if (typeof UIAutoMonkeyClientWillReleaseTheMonkey == 'undefined' || !UIAutoMonkeyClientWillReleaseTheMonkey) {
 	// the variable is not defined or it's defined and false
 	UIALogger.logDebug("Releasing the monkey directly from UIAutoMonkey"); //explain why it was released to aid in problem resolution.
-	UIAutoMonkey.RELEASE_THE_MONKEY();
+	(new UIAutoMonkey()).RELEASE_THE_MONKEY();
 }
 
 
