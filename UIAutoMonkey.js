@@ -35,7 +35,7 @@ function UIAutoMonkey() {
 		*
 		* For example, if a parent Window P has a large image
 		* and clicking on the image opens a child window C from which one exits by tapping a small X on the top right, then until that small X is
-		* tapped we will reamin in C. conditionHandlers offer the developer the option to periodically recognize that we are in C and press the X.
+		* tapped we will remain in C. conditionHandlers offer the developer the option to periodically recognize that we are in C and press the X.
 		*
 		* See buttonHandler.js for a specialized conditionHandler useful when a top level button can be used to escape from a UI hole.
 		*
@@ -46,7 +46,7 @@ function UIAutoMonkey() {
 		*  isExclusive() if true then if this condition's handler is invoked then processing subsequent conditions is skipped for this particular event. This
 		*	 is usually set to true as it allows the condition to exit a UI hole and at that point there may be no point executing other conditions
 		*  logStats() log statics using UIALogger;
-		* condition handers must have the following property
+		* condition handlers must have the following property
 		*  statsHandleInvokedCount - the count of the number of times we were invoked
 		*/
 
@@ -58,7 +58,7 @@ function UIAutoMonkey() {
 		* ANR state.
 		*
 		* To deal with this the monkey supports ANR detection. Using an anrFingerprint function it periodically takes a fingerprint and if these
-		* are identical for a specificed interval then an ANR exception is thrown. 
+		* are identical for a specified interval then an ANR exception is thrown.
 		*
 		*
 		*/
@@ -103,7 +103,7 @@ function UIAutoMonkey() {
 		}
 		
 
-		// Uncomment the following to restrict events to a rectangluar area of
+		// Uncomment the following to restrict events to a rectangular area of
 		// the screen
 		/*
 		frame: {
@@ -181,7 +181,7 @@ UIAutoMonkey.prototype.allEvents = {
 	},
 
 	clickVolumeDown: function() {
-		this.target().clickVolumeUp();
+		this.target().clickVolumeDown();
 	},
 
 	lock: function() {
