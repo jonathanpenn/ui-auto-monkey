@@ -81,7 +81,7 @@ Running on device, the script may fail with a vague message: "An error occurred 
 
 ## Custom Use
 
-As delivered the monkey starts itself. If you import it, it will start running immediately, which is probably not what you want if you want to customize its use. If you want to control when the monkey is released please follow the pattern in the SampleCustomization folder. In brief you want to set a global as set in SetGlobals.js, but due to Apple's javascript implementation you cannot simply set it beofre you import UIAutoMonkey.js. Instead you need to follow the pattern in the SampleCustomization folder.
+As delivered the monkey starts itself. If you import it, it will start running immediately, which is probably not what you want if you want to customize its use. If you want to control when the monkey is released please follow the pattern in the SampleCustomization folder. In brief you want to set a global as set in SetGlobals.js, but due to Apple's javascript implementation you cannot simply set it before you import UIAutoMonkey.js. Instead you need to follow the pattern in the SampleCustomization folder.
 
 Save UIAutoMonkey.js somewhere in your disk to import it and configure it in each of your Instruments instances
 ### In your test file
