@@ -1,3 +1,9 @@
+**Deprecated** - Alas, this project is only available for historical purposes. Apple has removed the UI Testing instrument that used JavaScript to drive the user interface of apps. There's a new suite of [user interface testing][newui] tools, but it doesn't use JavaScript so the UI AutoMonkey won't work with it.
+
+[newui]: https://developer.apple.com/library/content/documentation/DeveloperTools/Conceptual/testing_with_xcode/chapters/09-ui_testing.html
+
+---
+
 <img alt="UI AutoMonkey Mascot" src="https://raw.github.com/jonathanpenn/ui-auto-monkey/master/docimg/monkey.png">
 
 UI AutoMonkey
